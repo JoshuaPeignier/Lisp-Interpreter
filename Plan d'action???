@@ -3,3 +3,7 @@ quand je trouve je mettrais en commentaire, et je note ici, comme ça on s'aura 
 
 ça te semble un bon plan d'action? sinon comment veux tu qu'on procède?
 
+on retrouve plus ou moins lexer.mll et lexer.ml dans lisp.lex
+de même pour parser.ml ... et lisp.y
+par contre toujours aussi peu commenté.
+
