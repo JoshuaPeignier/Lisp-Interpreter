@@ -7,3 +7,29 @@ on retrouve plus ou moins lexer.mll et lexer.ml dans lisp.lex
 de même pour parser.ml ... et lisp.y
 par contre toujours aussi peu commenté.
 
+cherchons a creer setq (dans caml):
+
+dans def.ml
+  let lisp_setq = string_to_symbol "setq";;
+
+dans toplevel.ml:
+    dans handle_directive (ligne 58)
+      if (directive = lisp_setq) || (directive = lisp_defun)
+        then (handle_set obj; raise Lisp_continue)
+        
+    let handle_set obj = handle_define obj;; (ligne 31) mais pourquoi???
+    
+    let handle_define obj =
+      let defined_obj = (cadr obj)
+        and defining_expr = (extract_defining_expr obj) in
+      let defined_name = (obj_to_string defined_obj)
+        and defining_value = (eval defining_expr !global_env_ref)
+      in
+      begin
+        print_string ("SET: " ^ defined_name ^ " = ");
+        print(defining_value);
+      print_newline();
+      global_env_ref := update_env_extend
+      defined_obj defining_value !global_env_ref
+        end
+    ;;
