@@ -2,6 +2,7 @@
 #include "object.hh"
 #include "env.hh"
 #include "eval.hh"
+#inlude "toplevel.hh"
 
 extern Object just_read;
 extern "C" int yyparse();
@@ -17,7 +18,7 @@ int main() {
 
   Environment env;
   env.add_new_binding(Object_to_string(a), one);
-  env.add_new_binding(Object_to_string(a), two);
+  env.add_new_binding(Object_to_string(b), two);
   
   do {
     cout << "Lisp? " << flush;

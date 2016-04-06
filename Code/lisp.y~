@@ -60,7 +60,7 @@ http://tldp.org/HOWTO/Lex-YACC-HOWTO-6.html
 6.2 Recursion: 'right is wrong'
 */
 
-// You can type as many ) as you want (before an expression ; if you type (- (+ 1 2)))) 3), it will read -, (+ 1 2) and )))3, and with this rule, forgets the ))) ). $2 corresponds to expr ; YYACCEPT stops the parser, caus' you read what's necessary
+// You can type as many ) as you want (before an expression ; if you type (- (+ 1 2)))) 3), it will read -, (+ 1 2) and )))3, and with this rule, forgets the ))) ). $2 corresponds to expr ; YYACCEPT stops the parser
 main: 
 list_rpar expr          {$$ = $2; clog << "Read: " << $2 << endl; just_read = $$; YYACCEPT;}
 ;
