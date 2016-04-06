@@ -36,6 +36,7 @@ object.o: object.cc object.hh cell.hh
 cell.o: cell.hh
 env.o: env.hh object.hh cell.hh
 eval.o: eval.hh object.hh cell.hh env.hh
+toplevel.o: toplevel.cc toplevel.hh eval.hh object.hh env.hh
 main.o: main.hh
 object.o: object.hh cell.hh
 main.o: lisp_yacc.o

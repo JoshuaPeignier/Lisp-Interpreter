@@ -2,11 +2,12 @@
 #include "object.hh"
 #include "env.hh"
 #include "eval.hh"
-#inlude "toplevel.hh"
+#include "toplevel.hh"
 
 extern Object just_read;
 extern "C" int yyparse();
 extern "C" FILE *yyin;
+Environment env;
 
 using namespace std;
 
@@ -16,15 +17,11 @@ int main() {
   Object one = number_to_Object(1);
   Object two = number_to_Object(2);
 
-  Environment env;
   env.add_new_binding(Object_to_string(a), one);
   env.add_new_binding(Object_to_string(b), two);
   
   do {
-    cout << "Lisp? " << flush;
-    yyparse();
-    Object l = just_read;
-    cout << eval(l, env) << endl;
+	toplevel();
   } while (!feof(yyin));
 }
 

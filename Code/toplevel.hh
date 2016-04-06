@@ -6,3 +6,6 @@
 extern Object just_read;
 extern "C" int yyparse();
 extern "C" FILE *yyin;
+extern Environment env;
+
+void toplevel();

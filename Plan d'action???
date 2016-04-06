@@ -9,6 +9,10 @@ J'ai commencé à rédiger la partie TopLevel.
 
 Là où ça va être le merdier, c'est s'il faut modifier lisp.y... Il faut regarder comment on attrape setq dans CamL. Et on verra, pour ici.
 
+Edit : bon, a priori, faudra bien modifier lisp.y.
+Mais je me charge de regarder comment on fait demain.
+A priori, il n'y a pas de problème au niveau de la compilation, j'ai regardé le makefile. Il y a juste à modifier lisp.y et écrire ce qu'il faut dans toplevel.cc et toplevel.hh. Et éventuellement dans les autres fichiers .cc.
+
 
 
 ########################################################################
