@@ -29,7 +29,9 @@ Object cdr(Object l) {
   return l -> to_pair_next();
 }
 
-Object size(Object l) {
+int size(Object l) {
+  if(null(l)){return 0;}
+  else{return 1 + size(cdr(l));}
 }
 
 Object empty() {

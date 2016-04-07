@@ -80,9 +80,17 @@ Object eval(Object l, Environment env) {
       return eval(then_part, env);
     }
     if(Object_to_string(f) == "setq"){
+	if(size(l) > 3){
+		clog << "Error : too many values in setq\n" << endl;
+		return eval(nil(),env);
+	}
+	else if(size(l) < 3){
+		clog << "Error : not enough values in setq\n" << endl;
+		return eval(nil(),env);
+	}
 	Object var = cadr(l);
 	Object val = caddr(l);
-	env.extend_env(cons(var,nil()),cons(val,nil()));
+	env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
 	return eval(var,env);
     }
   }

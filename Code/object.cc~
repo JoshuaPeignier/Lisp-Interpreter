@@ -29,6 +29,10 @@ Object cdr(Object l) {
   return l -> to_pair_next();
 }
 
+Object size(Object l) {
+  assert()
+}
+
 Object empty() {
   return nil();;
 }

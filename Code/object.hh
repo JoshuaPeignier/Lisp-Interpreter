@@ -10,6 +10,7 @@ bool null(Object l);
 Object cons(Object a, Object l);
 Object car(Object l);
 Object cdr(Object l);
+int size(Object l);
 Object empty();
 bool is_empty(Object l);
 
