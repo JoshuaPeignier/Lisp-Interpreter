@@ -82,7 +82,8 @@ Object eval(Object l, Environment env) {
     if(Object_to_string(f) == "setq"){
 	Object var = cadr(l);
 	Object val = caddr(l);
-	env.extend_env(var,val);
+	env.extend_env(cons(var,nil()),cons(val,nil()));
+	return eval(var,env);
     }
   }
   // It is a function applied to arguments

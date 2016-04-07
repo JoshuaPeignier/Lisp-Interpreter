@@ -1,0 +1,180 @@
+;; Common Lisp manual: <http://www.cs.cmu.edu/Groups/AI/html/cltl/clm/clm.html>
+
+;; This symbol is already defined in Common Lisp
+;; (setq t 't)
+
+(defun my_error (s env) 
+  (progn 
+    (print_object (cons "MLisp: " s))
+    (newline)
+    (toplevel initial_env))) ;; Warning: MLisp is restarted with its *initial* environment!
+
+(defun newline () (format t "~%"))
+
+(defun print_object (s) (format t "~A" s))
+
+(defun print_object_newline (s) (format t "~A~%" s))
+
+;; Those functions are already defined in Common Lisp
+;; (defun cadr (l) (car (cdr l)))
+;; (defun caddr (l) (cadr (cdr l)))
+;; (defun cadddr (l) (caddr (cdr l)))
+;; (defun caar (l) (car (car l)))
+;; (defun cadar (l) (car (cdr (car l))))
+
+(defun listii (l m) (cons l (cons m ())))
+(defun listiii (l m n) (cons l (cons m (cons n ()))))
+
+(setq initial_env 
+      '(
+	(fact 
+	 (lambda (n) (if (= n 0) 1 (* n (fact (- n 1))))))
+	(fib
+	 (lambda (n) (cond ((= n 0) 1) ((= n 1) 1) (t (+ (fib (- n 1)) (fib (- n 2)))))))
+	(plus +) 
+	(t t)
+	(a 1) 
+	(b 2)
+	(+ (subr +))
+	(* (subr *))
+	(- (subr -))
+	(= (subr =))
+	(eq (subr eq))
+	(car (subr car))
+	(cons (subr cons))
+	(cdr (subr cdr))
+	(null (subr null))
+	(numberp (subr numberp))
+	(stringp (subr stringp))
+	(listp (subr listp))
+	(print (subr print_object_newline))
+	(read (subr read))
+	(newline (subr newline))
+	))
+
+(defun my_assoc (a env)
+  (if (null env) 
+      (my_error (listii "Undefined variable: " a) env)
+    (if (eq a (caar env)) (cadar env)
+      (my_assoc a (cdr env)))))
+
+(defun my_eval_list (l env)
+  (if (null l) l
+    (cons (my_eval (car l) env) 
+	  (my_eval_list (cdr l) env))))
+
+(defun my_eval_cond (l env) 
+  (if (null l) nil
+    (if (my_eval (caar l) env)
+	(my_eval (cadar l) env)
+      (my_eval_cond (cdr l) env))))
+
+(defun my_eval_if (l env) 
+  (if (my_eval (car l) env)
+      (my_eval (cadr l) env)
+    (my_eval (caddr l) env)))
+
+(defun my_eval_progn (l env)
+  (if (null l) nil
+    (if (null (cdr l)) (my_eval (car l) env)
+      (progn (my_eval (car l) env) 
+	     (my_eval_progn (cdr l) env)))))
+
+(defun my_eval_andthen (l env)
+  (if (my_eval (car l) env)
+      (my_eval (cadr l) env)
+    nil))
+
+(defun list_car (l)
+  (if (null l) nil
+    (cons (car (car l)) (list_car (cdr l)))))
+
+(defun list_cadr (l)
+  (if (null l) nil
+    (cons (cadr (car l)) (list_cadr (cdr l)))))
+
+(defun macro_let_to_lambda (obj)
+  (let ((binding_list (cadr obj))
+	(body (caddr obj)))
+    (let ((lpars (list_car binding_list))
+	  (largs (list_cadr binding_list)))
+      (cons 
+       (listiii 'lambda lpars body) 
+       largs))))
+
+(defun my_eval (obj env)
+  (progn
+    ;;    (print obj)
+    ;;    (print env)
+    (cond 
+     ((null obj) obj)
+     ((numberp obj) obj)
+     ((stringp obj) obj)
+     ((symbolp obj) (my_assoc obj env))
+     (t
+      (let ((f (car obj)))
+	(cond 
+	 ((eq f 'quote) (cadr obj))
+	 ((eq f 'lambda) obj)
+	 ((eq f 'if) (my_eval_if (cdr obj) env))
+	 ((eq f 'cond) (my_eval_cond (cdr obj) env))
+	 ((eq f 'progn) (my_eval_progn (cdr obj) env))
+	 ((eq f 'andthen) (my_eval_andthen (cdr obj) env))
+	 ((eq f 'let) 
+	  (my_eval (macro_let_to_lambda obj) env))
+	 (t (my_apply f (my_eval_list (cdr obj) env) env)))))
+     )))
+
+(setq low_level_apply (function apply))
+
+(defun my_apply (f lvals env)
+  (cond 
+   ((null f) (my_error "Cannot apply nil!" env))
+   ((numberp f) (my_error "Cannot apply a number!" env))
+   ((stringp f) (my_error "Cannot apply a string!" env))
+   ((symbolp f)
+    (my_apply (my_eval f env) lvals env))
+   ((listp f)
+    (cond
+     ((eq (car f) 'subr)
+      (funcall low_level_apply (cadr f) lvals))
+     ((eq (car f) 'lambda)
+      (let ((largs (cadr f))
+	    (body (caddr f)))
+	(my_eval body (extend_env largs lvals env))))
+     (t (my_error "Cannot apply a list!" env))))
+   (t (my_error "Unexpected function" env))
+   ))
+
+(defun extend_env (largs lvals env)
+  (if (null largs) env
+    (cons (listii (car largs) (car lvals))
+	  (extend_env (cdr largs) (cdr lvals) env))))
+
+(defun toplevel (env)
+  (progn
+    (print_object "MLisp? ")
+    (let ((l (read)))
+      (cond 
+       ((and (listp l) (eq (car l) 'quit))
+	(progn
+	  (print_object "Let MLisp be with you...")
+	  (newline)
+	  ()))
+       ((and (listp l) (eq (car l) 'setq))
+	(let ((x (cadr l))
+	      (v (my_eval (caddr l) env)))
+	  (progn
+	    (print_object "MLisp: ")
+	    (print_object x)
+	    (print_object " = ")
+	    (print_object v)
+	    (newline)
+	    (toplevel (cons (listii x v) env)))))
+       (t
+	(progn
+	  (print_object (my_eval l env))
+	  (newline)
+	  (toplevel env)))))))
+
+(defun my_go () (toplevel initial_env))

@@ -29,9 +29,6 @@ Object cdr(Object l) {
   return l -> to_pair_next();
 }
 
-Object size(Object l) {
-}
-
 Object empty() {
   return nil();;
 }
