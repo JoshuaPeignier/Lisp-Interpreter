@@ -8,11 +8,11 @@ let register_subr symbol f =
 
 let init_env_subr () =
   begin
-    register_subr lisp_plus do_plus;
-    register_subr lisp_mult do_mult;
-    register_subr lisp_minus do_minus;
-    register_subr lisp_car do_car;
-    register_subr lisp_cdr do_cdr;
+    register_subr lisp_plus do_plus; (* Done *)
+    register_subr lisp_mult do_mult; (* Done *)
+    register_subr lisp_minus do_minus; (* Done *)
+    register_subr lisp_car do_car; (* Done *)
+    register_subr lisp_cdr do_cdr; (* Done *)
     register_subr lisp_cons do_cons;
     register_subr lisp_eq do_eq;
     register_subr lisp_equal do_equal;

@@ -93,6 +93,45 @@ Object eval(Object l, Environment env) {
 	env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
 	return eval(var,env);
     }
+    if(Object_to_string(f) == "car"){
+	if(size(l) > 2){
+		clog << "Error : too many fields in car\n" << endl;
+		return eval(nil(),env);
+	}
+	else if(size(l) < 2){
+		clog << "Error : not enough fields in car\n" << endl;
+		return eval(nil(),env);
+	}
+	Object elem = cadr(l);
+	return eval(car(elem),env);
+    }
+    if(Object_to_string(f) == "cdr"){
+	if(size(l) > 2){
+		clog << "Error : too many fields in cdr\n" << endl;
+		return eval(nil(),env);
+	}
+	else if(size(l) < 2){
+		clog << "Error : not enough fields in cdr\n" << endl;
+		return eval(nil(),env);
+	}
+	Object elem = cadr(l);
+	return cdr(elem);
+    }
+    if(Object_to_string(f) == "cons"){
+	if(size(l) > 3){
+		clog << "Error : too many fields in cons\n" << endl;
+		return eval(nil(),env);
+	}
+	else if(size(l) < 3){
+		clog << "Error : not enough fields in cons\n" << endl;
+		return eval(nil(),env);
+	}
+	Object elem = cadr(l);
+	Object tail = caddr(l);
+	assert(!listp(elem));
+	assert(listp(tail));
+	return cons(eval(elem,env),tail);
+    }
   }
   // It is a function applied to arguments
   Object vals = eval_list(cdr(l), env);
@@ -117,6 +156,12 @@ Object do_times(Object lvals) {
   return number_to_Object(a * b);
 }
 
+Object do_minus(Object lvals){
+  int a = Object_to_number(car(lvals));
+  int b = Object_to_number(cadr(lvals));
+  return number_to_Object(a - b);
+}
+
 Object apply(Object f, Object lvals, Environment env) {
   clog << "\tapply: " << f << " " << lvals << env << endl;
 
@@ -131,19 +176,20 @@ Object apply(Object f, Object lvals, Environment env) {
   if (symbolp(f)) {
     if (Object_to_string(f) == "+") return do_plus(lvals);
     if (Object_to_string(f) == "*") return do_times(lvals);
+    if (Object_to_string(f) == "-") return do_minus(lvals);
     Object new_f = env.find_value(Object_to_string(f));
     return apply(new_f, lvals, env);
   }
   assert(listp(f));
   if (Object_to_string(car(f)) == "lambda") {
-	if(size(f) > 3){
+    if(size(f) > 3){
 		clog << "Error : too many fields in lambda \n" << endl;
 		return eval(nil(),env);
-	}
-	else if(size(f) < 3){
+    }
+    else if(size(f) < 3){
 		clog << "Error : not enough fields in lambda\n" << endl;
 		return eval(nil(),env);
-	}
+    }
     Object lpars = cadr(f);
     Object body = caddr(f);
     Environment new_env = env;
