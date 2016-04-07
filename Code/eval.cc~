@@ -136,6 +136,14 @@ Object apply(Object f, Object lvals, Environment env) {
   }
   assert(listp(f));
   if (Object_to_string(car(f)) == "lambda") {
+	if(size(f) > 3){
+		clog << "Error : too many fields in lambda \n" << endl;
+		return eval(nil(),env);
+	}
+	else if(size(f) < 3){
+		clog << "Error : not enough fields in lambda\n" << endl;
+		return eval(nil(),env);
+	}
     Object lpars = cadr(f);
     Object body = caddr(f);
     Environment new_env = env;
