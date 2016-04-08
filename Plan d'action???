@@ -1,3 +1,14 @@
+J'ai updated eval maintenant setq devrait marcher
+petit bemol dans le cas (setq a (setq b 1))
+je n'arrive pas a renvoyer une erreur,
+j'ai essayer d'introduire une variable qui renverer message d'erreur au second setq mais ça n'a pas marcher 
+
+j'ai une idée en utilisant une variable global mais pas sur du resultat.
+
+
+#########################################""
+
+
 Update du 6 avril 2016 (j'ai 20 ans !), 23 h 38 :
 J'ai commencé à regarder un peu plus en détails le code en CamL pour essayer de le comprendre et faire la même chose en .C++. Je suis allé regarer ce que tu m'indiquais (je commente le code en CamL au fur et à mesure).
 En fait, le contenu de la boucle principale, dans main.cc, est fait en CamL dans la fonction toplevel(), dans toplevel.ml. J'essaye donc de créer de même une fonction toplevel dans toplevel.cc (et toplevel.hh), qui fait ce qu'il faut. On va reprendre les fonctions de CamL, dans l'ordre, et observer ce qu'on a à reprendre.
