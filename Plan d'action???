@@ -6,6 +6,8 @@ j'ai essayer d'introduire une variable qui renverer message d'erreur au second s
 j'ai une idée en utilisant une variable global mais pas sur du resultat.
 
 
+fait attention avec eval, il y a peut-êtr conflit si tu avit rajouter des trucs.
+
 #########################################""
 
 
