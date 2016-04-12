@@ -1,7 +1,15 @@
+ok petite erruer corrigé dans le top level il me pose problème avec is_subr, j'y jete coup d'oeuil
+
+
+
+################################################"""
+
 J'ai updated eval maintenant setq devrait marcher
 petit bemol dans le cas (setq a (setq b 1))
 je n'arrive pas a renvoyer une erreur,
 j'ai essayer d'introduire une variable qui renverer message d'erreur au second setq mais ça n'a pas marcher 
+
+
 
 j'ai une idée en utilisant une variable global mais pas sur du resultat.
 
