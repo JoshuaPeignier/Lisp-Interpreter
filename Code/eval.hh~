@@ -2,7 +2,6 @@
 
 #include "object.hh"
 #include "env.hh"
-#include "subr.hh"
 
 using namespace std;
 

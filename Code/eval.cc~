@@ -2,8 +2,10 @@
 #include <string>
 #include <cassert>
 #include "eval.hh"
+#include "toplevel.hh"
 
 using namespace std;
+
 
 bool numberp(Object l) {
   return l -> is_number();
@@ -47,7 +49,7 @@ private:
   Environment env;
   string message;
 public:
-  Evaluation_Exception(Object _obj, Environment _env, string _message):
+  Evaluation_Exception(Object _obj, Environment &_env, string _message):
     runtime_error("Evaluation error:" + _message) {
     obj = _obj;
     env = _env;
@@ -56,13 +58,12 @@ public:
   virtual ~Evaluation_Exception() throw () {}
 };
 
-Object eval(Object l, Environment env);
-Object apply(Object f, Object lvals, Environment env);
-Object eval_list(Object largs, Environment env);
+Object eval(Object l, Environment &env);
+Object apply(Object f, Object lvals, Environment &env);
+Object eval_list(Object largs, Environment &env);
 
-Object eval(Object l, Environment env) {
+Object eval(Object l, Environment &env) {
   clog << "\teval: " << l << env << endl;
-
   if (null(l)) return l;
   if (numberp(l)) return l;
   if (stringp(l)) return l;
@@ -79,58 +80,30 @@ Object eval(Object l, Environment env) {
       if (null(test_value)) return eval(else_part, env);
       return eval(then_part, env);
     }
+    if(Object_to_string(f) == "lambda") return l;
     if(Object_to_string(f) == "setq"){
-	if(size(l) > 3){
-		clog << "Error : too many values in setq\n" << endl;
-		return eval(nil(),env);
-	}
-	else if(size(l) < 3){
-		clog << "Error : not enough values in setq\n" << endl;
-		return eval(nil(),env);
-	}
-	Object var = cadr(l);
-	Object val = caddr(l);
-	env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
-	return eval(var,env);
+		if (get_setqq() > 0){
+			clog << "Error : too many setq used\n" << endl;
+			return eval(nil(),env);
+		}
+		else {
+			use_setqq();
+			if(size(l) > 3){
+				clog << "Error : too many values in setq\n" << endl;
+				return eval(nil(),env);
+			}
+			else if(size(l) < 3){
+				clog << "Error : not enough values in setq\n" << endl;
+				return eval(nil(),env);
+			}
+			Object var = cadr(l);
+			Object val = caddr(l);
+			env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
+			return eval(var,env);
+		}
     }
-    if(Object_to_string(f) == "car"){
-	if(size(l) > 2){
-		clog << "Error : too many fields in car\n" << endl;
-		return eval(nil(),env);
-	}
-	else if(size(l) < 2){
-		clog << "Error : not enough fields in car\n" << endl;
-		return eval(nil(),env);
-	}
-	Object elem = cadr(l);
-	return eval(car(elem),env);
-    }
-    if(Object_to_string(f) == "cdr"){
-	if(size(l) > 2){
-		clog << "Error : too many fields in cdr\n" << endl;
-		return eval(nil(),env);
-	}
-	else if(size(l) < 2){
-		clog << "Error : not enough fields in cdr\n" << endl;
-		return eval(nil(),env);
-	}
-	Object elem = cadr(l);
-	return cdr(elem);
-    }
-    if(Object_to_string(f) == "cons"){
-	if(size(l) > 3){
-		clog << "Error : too many fields in cons\n" << endl;
-		return eval(nil(),env);
-	}
-	else if(size(l) < 3){
-		clog << "Error : not enough fields in cons\n" << endl;
-		return eval(nil(),env);
-	}
-	Object elem = cadr(l);
-	Object tail = caddr(l);
-	assert(!listp(elem));
-	assert(listp(tail));
-	return cons(eval(elem,env),tail);
+    if(is_subr(f)){
+	return subr_effect(l,env);
     }
   }
   // It is a function applied to arguments
@@ -138,7 +111,7 @@ Object eval(Object l, Environment env) {
   return apply(f, vals, env);
 }
 
-Object eval_list(Object largs, Environment env) {
+Object eval_list(Object largs, Environment &env) {
   if (null(largs)) return largs;
   return cons(eval(car(largs), env), eval_list(cdr(largs), env));
 }
@@ -156,13 +129,13 @@ Object do_times(Object lvals) {
   return number_to_Object(a * b);
 }
 
-Object do_minus(Object lvals){
+Object do_minus(Object lvals) {
   int a = Object_to_number(car(lvals));
   int b = Object_to_number(cadr(lvals));
   return number_to_Object(a - b);
 }
 
-Object apply(Object f, Object lvals, Environment env) {
+Object apply(Object f, Object lvals, Environment &env) {
   clog << "\tapply: " << f << " " << lvals << env << endl;
 
   if (null(f)) throw Evaluation_Exception(f, env, "Cannot apply nil");
@@ -176,7 +149,6 @@ Object apply(Object f, Object lvals, Environment env) {
   if (symbolp(f)) {
     if (Object_to_string(f) == "+") return do_plus(lvals);
     if (Object_to_string(f) == "*") return do_times(lvals);
-    if (Object_to_string(f) == "-") return do_minus(lvals);
     Object new_f = env.find_value(Object_to_string(f));
     return apply(new_f, lvals, env);
   }

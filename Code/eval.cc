@@ -101,7 +101,10 @@ Object eval(Object l, Environment &env) {
 			env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
 			return eval(var,env);
 		}
-	}
+    }
+    if(is_subr(f)){
+	return subr_effect(l,env);
+    }
   }
   // It is a function applied to arguments
   Object vals = eval_list(cdr(l), env);
@@ -126,6 +129,12 @@ Object do_times(Object lvals) {
   return number_to_Object(a * b);
 }
 
+Object do_minus(Object lvals) {
+  int a = Object_to_number(car(lvals));
+  int b = Object_to_number(cadr(lvals));
+  return number_to_Object(a - b);
+}
+
 Object apply(Object f, Object lvals, Environment &env) {
   clog << "\tapply: " << f << " " << lvals << env << endl;
 
@@ -140,6 +149,7 @@ Object apply(Object f, Object lvals, Environment &env) {
   if (symbolp(f)) {
     if (Object_to_string(f) == "+") return do_plus(lvals);
     if (Object_to_string(f) == "*") return do_times(lvals);
+    if (Object_to_string(f) == "-") return do_minus(lvals);
     Object new_f = env.find_value(Object_to_string(f));
     return apply(new_f, lvals, env);
   }

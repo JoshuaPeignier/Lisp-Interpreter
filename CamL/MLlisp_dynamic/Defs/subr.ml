@@ -13,7 +13,7 @@ let init_env_subr () =
     register_subr lisp_minus do_minus; (* Done *)
     register_subr lisp_car do_car; (* Done *)
     register_subr lisp_cdr do_cdr; (* Done *)
-    register_subr lisp_cons do_cons;
+    register_subr lisp_cons do_cons; (* Done *)
     register_subr lisp_eq do_eq;
     register_subr lisp_equal do_equal;
     register_subr lisp_read do_read;
