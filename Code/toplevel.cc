@@ -11,6 +11,8 @@ void toplevel(){
     cout << eval(l, env) << endl;
 }
 
-int get_setqq();
-void use_setqq();
-void toplevel();
+int setqq = 0;
+
+void use_setqq(){setqq =+ 1;}
+int get_setqq(){return setqq;}
+
