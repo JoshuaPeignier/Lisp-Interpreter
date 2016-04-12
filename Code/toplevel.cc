@@ -10,3 +10,9 @@ void toplevel(){
     Object l = just_read;
     cout << eval(l, env) << endl;
 }
+
+int setqq = 0;
+
+void use_setqq(){setqq =+ 1;}
+int get_setqq(){return setqq;}
+

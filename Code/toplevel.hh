@@ -8,4 +8,7 @@ extern "C" int yyparse();
 extern "C" FILE *yyin;
 extern Environment env;
 
+int get_setqq();
+void use_setqq();
 void toplevel();
+
