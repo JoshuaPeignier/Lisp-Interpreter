@@ -67,7 +67,12 @@ Object eval(Object l, Environment &env) {
   if (null(l)) return l;
   if (numberp(l)) return l;
   if (stringp(l)) return l;
-  if (symbolp(l)) return env.find_value(Object_to_string(l));
+  if (symbolp(l)) {
+	if(Object_to_string(l) == "t"){
+		return l; // In case we want do to a condition which is always true
+	}
+	return env.find_value(Object_to_string(l));
+  }
   assert(listp(l));
   Object f = car(l);
   if (symbolp(f)) {
@@ -102,9 +107,10 @@ Object eval(Object l, Environment &env) {
 			return eval(var,env);
 		}
     }
-    if(is_subr(f)){
-	return subr_effect(l,env);
-    }
+  }
+  if(numberp(f)){
+	clog << "Warning : tried to evaluate a list of numbers" << endl;
+	return l;
   }
   // It is a function applied to arguments
   Object vals = eval_list(cdr(l), env);
@@ -150,6 +156,9 @@ Object apply(Object f, Object lvals, Environment &env) {
     if (Object_to_string(f) == "+") return do_plus(lvals);
     if (Object_to_string(f) == "*") return do_times(lvals);
     if (Object_to_string(f) == "-") return do_minus(lvals);
+    if(is_subr(f)){
+	return subr_effect(cons(f,lvals));
+    }
     Object new_f = env.find_value(Object_to_string(f));
     return apply(new_f, lvals, env);
   }

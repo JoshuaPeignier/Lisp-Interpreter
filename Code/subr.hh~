@@ -4,6 +4,11 @@
 #include "object.hh"
 #include "eval.hh"
 
-void is_subr(Object f);
+int is_subr(Object f);
 
-Object subr_effect(Object l);
+Object subr_effect(Object l, Environment env);
+
+Object subr_car(Object l, Environment env);
+Object subr_cdr(Object l, Environment env);
+Object subr_cons(Object l, Environment env);
+Object subr_progn(Object l, Environment env);
