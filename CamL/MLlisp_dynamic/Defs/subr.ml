@@ -14,8 +14,8 @@ let init_env_subr () =
     register_subr lisp_car do_car; (* Done *)
     register_subr lisp_cdr do_cdr; (* Done *)
     register_subr lisp_cons do_cons; (* Done *)
-    register_subr lisp_eq do_eq;
-    register_subr lisp_equal do_equal;
+    register_subr lisp_eq do_eq; (* Done *)
+    register_subr lisp_equal do_equal; (* Done *)
     register_subr lisp_read do_read;
     register_subr lisp_print do_print;
     register_subr lisp_newline do_newline;

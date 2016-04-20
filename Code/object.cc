@@ -9,6 +9,10 @@ Object nil() {
   return Cell::nil();
 }
 
+Object t(){
+  return string_to_Object("t");
+}
+
 bool null(Object l) {
   return l == nil();
 }
