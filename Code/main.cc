@@ -22,6 +22,7 @@ int main() {
   
   do {
 	toplevel();
+	reset_setqq();
   } while (!feof(yyin));
 }
 
