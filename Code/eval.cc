@@ -88,24 +88,22 @@ Object eval(Object l, Environment &env) {
     if(Object_to_string(f) == "lambda") return l;
     if(Object_to_string(f) == "setq"){
 		if (get_setqq() > 0){
-			clog << "Error : too many setq used\n" << endl;
+			clog << "Warning : setq used several times\n" << endl;
+		}
+		use_setqq();
+		if(size(l) > 3){
+		clog << "Error : too many values in setq\n" << endl;
 			return eval(nil(),env);
 		}
-		else {
-			use_setqq();
-			if(size(l) > 3){
-				clog << "Error : too many values in setq\n" << endl;
-				return eval(nil(),env);
-			}
-			else if(size(l) < 3){
-				clog << "Error : not enough values in setq\n" << endl;
-				return eval(nil(),env);
-			}
-			Object var = cadr(l);
-			Object val = caddr(l);
-			env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
-			return eval(var,env);
+		else if(size(l) < 3){
+			clog << "Error : not enough values in setq\n" << endl;
+			return eval(nil(),env);
 		}
+		Object var = cadr(l);
+		Object val = caddr(l);
+		env.extend_env(cons(var,nil()),cons(eval(val,env),nil()));
+		return eval(var,env);
+
     }
   }
   if(numberp(f)){
