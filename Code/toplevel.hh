@@ -11,4 +11,4 @@ extern Environment env;
 int get_setqq();
 void use_setqq();
 void toplevel();
-
+void reset_setqq();
