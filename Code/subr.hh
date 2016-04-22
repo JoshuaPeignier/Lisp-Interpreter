@@ -15,3 +15,4 @@ Object subr_progn(Object l);
 Object subr_eq(Object l);
 Object subr_read(Object l);
 Object subr_print(Object l);
+Object subr_debug(Object l);
