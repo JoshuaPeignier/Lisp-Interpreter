@@ -13,3 +13,5 @@ Object subr_cdr(Object l);
 Object subr_cons(Object l);
 Object subr_progn(Object l);
 Object subr_eq(Object l);
+Object subr_read(Object l);
+Object subr_print(Object l);

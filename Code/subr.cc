@@ -3,11 +3,14 @@
 #include <cassert>
 #include "subr.hh"
 
+extern Object just_read;
+extern "C" int yyparse();
+
 // Tests if the given element (supposed to be the head of the list in eval) is a subroutine
 int is_subr(Object f){
 	string s;
 	s = Object_to_string(f);
-	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=");
+	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print");
 }
 
 // Identifies the corresponding subroutine, and returns the list it is supposed to return
@@ -19,7 +22,9 @@ Object subr_effect(Object l){
 	else if(s == "cdr"){res = subr_cdr(l);}
 	else if (s == "cons"){res = subr_cons(l);}
 	else if (s == "progn"){res = subr_progn(l);}
-	else if (s == "eq" || s == "equal" || s == "eq"){res = subr_eq(l);}
+	else if (s == "eq" || s == "equal" || s == "="){res = subr_eq(l);}
+	else if (s == "read"){res = subr_read(l);}
+	else if (s == "print"){res = subr_print(l);}
 	else{
 		cout << "Error : invalid subroutine" << endl;
 		res = nil();
@@ -135,4 +140,27 @@ Object subr_eq(Object l){
 		return t();
 	}
 	return nil();
+}
+
+Object subr_read(Object l){
+	if(size(l) > 1){
+		clog << "Error : read takes no argument" << endl;
+		return nil();
+	}
+	yyparse();
+	Object k = just_read;
+	return k;
+}
+
+Object subr_print(Object l){
+	if(size(l) > 2){
+		clog << "Too many fields in print" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Not enough fields in print" << endl;
+		return nil();
+	}
+	clog << cadr(l) << endl;
+	return cadr(l);
 }
