@@ -5,12 +5,13 @@
 
 extern Object just_read;
 extern "C" int yyparse();
+int trace;
 
 // Tests if the given element (supposed to be the head of the list in eval) is a subroutine
 int is_subr(Object f){
 	string s;
 	s = Object_to_string(f);
-	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print" || s == "debug");
+	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print" || s == "debug" || s == "newline" || s == "listp" || s == "numberp" || s == "symbolp" || s == "stringp" || s == "null");
 }
 
 // Identifies the corresponding subroutine, and returns the list it is supposed to return
@@ -26,6 +27,12 @@ Object subr_effect(Object l){
 	else if (s == "read"){res = subr_read(l);}
 	else if (s == "print"){res = subr_print(l);}
 	else if (s == "debug"){res = subr_debug(l);}
+	else if (s == "newline"){res = subr_newline(l);}
+	else if (s == "listp"){res = subr_listp(l);}
+	else if (s == "numberp"){res = subr_numberp(l);}
+	else if (s == "symbolp"){res = subr_symbolp(l);}
+	else if (s == "stringp"){res = subr_stringp(l);}
+	else if (s == "null"){res = subr_null(l);}
 	else{
 		cout << "Error : invalid subroutine" << endl;
 		res = nil();
@@ -145,7 +152,7 @@ Object subr_eq(Object l){
 
 Object subr_read(Object l){
 	if(size(l) > 1){
-		clog << "Error : read takes no argument" << endl;
+		clog << "Error : read takes no argument but it is given one" << endl;
 		return nil();
 	}
 	yyparse();
@@ -169,15 +176,93 @@ Object subr_print(Object l){
 Object subr_debug(Object l){
 	if(size(l) > 2){
 		clog << "Error : too many fields in debug" << endl;
-		return nil();
 	}
 	if(size(l) < 2){
 		clog << "Error : not enough fields in debug" << endl;
-		return nil();
 	}
-	if(!numberp(cadr(l))){
-		clog << "Error : argument in debug is not a number" << endl;
-		return nil();
+	if(cadr(l) == nil()){
+		trace =-1;
+	}
+	else if(numberp(cadr(l))){
+		if(Object_to_number(cadr(l)) > 0){
+			trace = Object_to_number(cadr(l));
+		}
+	}
+	else if(!numberp(cadr(l))){
+		clog << "Error : argument in debug is not a number, nor is it nil" << endl;
 	}
 	return nil();
+}
+
+Object subr_newline(Object l){
+	if(size(l) > 1){
+		clog << "Error : newline takes no argument" << endl;
+	}
+	clog << "" << endl;
+	return nil();
+}
+
+Object subr_listp(Object l){
+	if(size(l) > 2){
+		clog << "Error : too many fields in listp" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Error : not enough fields in listp" << endl;
+		return nil();
+	}
+	if(listp(cadr(l))){return t();}
+	else{return nil();}
+}
+
+Object subr_numberp(Object l){
+	if(size(l) > 2){
+		clog << "Error : too many fields in numberp" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Error : not enough fields in numberp" << endl;
+		return nil();
+	}	
+	if(numberp(cadr(l))){return t();}
+	else{return nil();}
+}
+
+Object subr_symbolp(Object l){
+	if(size(l) > 2){
+		clog << "Error : too many fields in symbolp" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Error : not enough fields in symbolp" << endl;
+		return nil();
+	}
+	if(symbolp(cadr(l))){return t();}
+	else{return nil();}
+}
+
+Object subr_stringp(Object l){
+	if(size(l) > 2){
+		clog << "Error : too many fields in stringp" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Error : not enough fields in stringp" << endl;
+		return nil();
+	}
+	if(stringp(cadr(l))){return t();}
+	else{return nil();}
+}
+
+Object subr_null(Object l){
+	if(size(l) > 2){
+		clog << "Error : too many fields in null" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Error : not enough fields in null" << endl;
+		return nil();
+	}
+	if(null(cadr(l))){return t();}
+	else{return nil();}
 }

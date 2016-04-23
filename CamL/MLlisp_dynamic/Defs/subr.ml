@@ -18,12 +18,12 @@ let init_env_subr () =
     register_subr lisp_equal do_equal; (* Done *)
     register_subr lisp_read do_read; (* Done *)
     register_subr lisp_print do_print; (* Done *)
-    register_subr lisp_newline do_newline;
-    register_subr lisp_numberp do_numberp;
-    register_subr lisp_null do_null;
-    register_subr lisp_symbolp do_symbolp;
-    register_subr lisp_stringp do_stringp;
-    register_subr lisp_listp do_listp;
+    register_subr lisp_newline do_newline; (* Done *)
+    register_subr lisp_numberp do_numberp; (* Done *)
+    register_subr lisp_null do_null; (* Done *)
+    register_subr lisp_symbolp do_symbolp; (* Done *)
+    register_subr lisp_stringp do_stringp; (* Done *)
+    register_subr lisp_listp do_listp; (* Done *)
     register_subr lisp_debug do_debug;
     register_subr lisp_concat do_concat;
     register_subr lisp_eval do_eval;

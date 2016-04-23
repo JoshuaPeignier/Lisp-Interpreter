@@ -8,10 +8,12 @@ extern Object just_read;
 extern "C" int yyparse();
 extern "C" FILE *yyin;
 Environment env;
+extern int trace;
 
 using namespace std;
 
 int main() {
+  trace = -1;
   Object a =  symbol_to_Object("a");
   Object b =  symbol_to_Object("b");
   Object one = number_to_Object(1);
