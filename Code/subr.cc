@@ -37,6 +37,7 @@ Object subr_effect(Object l){
 	else if (s == "null"){res = subr_null(l);}
 	else if (s == "concat"){res = subr_concat(l);}
 	else if (s == "eval"){res = subr_eval(l);}
+	else if (s == "apply"){res = subr_apply(l);}
 	else{
 		cout << "Error : invalid subroutine" << endl;
 		res = nil();
@@ -307,5 +308,17 @@ Object subr_eval(Object l){
 		return nil();
 	}
 	return eval(cadr(l),env);
+}
+
+Object subr_apply(Object l){
+	if(size(l) > 3){
+		clog << "Error : too many fields in apply" << endl;
+		return nil();
+	}
+	if(size(l) < 3){
+		clog << "Error : not enough fields in apply" << endl;
+		return nil();
+	}
+	return apply(cadr(l),caddr(l),env);
 }
 
