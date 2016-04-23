@@ -1,0 +1,120 @@
+\documentclass[a4paper]{article}
+\usepackage[french]{babel} 
+\usepackage{microtype}
+
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+
+\title{Interpréteur LISP}
+\author{J. Peignier \& E. Varloot}
+\date{Avril/Mai 2016}
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\pagebreak
+	
+\section{Introduction}
+
+	L'objectif de ce projet est de créer un interpréteur pour le language LISP en C++. Entre autre on voudrait qu'il puisse interpérter un intepréteur LISP qui est lui même écrit en LISP.
+	Pour ce faire on avait à disposition un exemple d'iterpréteur écrit en Caml et la base de notre code contenant déjà un évaluateur et un environement.
+
+\section{Toplevel}
+
+	Le premier élément que nous devions implementer était le toplevel. Le toplevel est divisé en deux parties.
+	
+	 La première est utilisé constament. Lorsqu'on l'appel, on affiche "Lisp?" pour signalé que l'utilisateur peut entrer son instruction. Le toplevel recupère l'instruction entrée dans le terminal. Il appelle le lexer pour vérifier la syntaxe puis le parker se sert de se que lui renvoi le lexer pour reconsruire l'élément Lisp. Puis on évalue selon l'enviromenent (global et courant) grâce au partie évaluation et environement du code.
+	 
+	 La seconde partie conserne la directive "setq" qui permet d'ajouté un élèment a l'environement global. Pour se faire nous avons assimilé "setq" a un element qu'on evalue. Lorsqu'on le trouve on evalue le secound argument de setq puis on la renvoie. De plus on étant l'environement general tel que le premier argument represente maintenant le resultat de l'evaluation du second.
+	Nous avons rajouté un message dans le cas ou setq serait appelé plusieur fois lors d'une évaluation, en effet bien que cela ne pose pas de problème pour notre code, des cas patologique peuvent apparaitre en parliculier lorsque setq s'appelle lui-même.
+
+\section{Subroutine}
+\subsection{Gestion general}
+	Les subroutines ne sont pas des éléments a évalué on les appel donc dans apply. Ainsi lorsque le code d'eval determine qu'un element ne peut être evalué et il essaye de l'appliqué a la place. Il appelle apply qui détermine grâce a une fonction is\_subr si il s'agis d'une sobroutine. Si c'est le cas on va chercher dans subr.cc qu'on a créé la fonction liée a la subroutine en question.
+
+	Dans notre code d'origine, seul + et * était déjà fourni. Il nous a donc fallut écrire d'autre subroutine. Pour chaque subroutine on suit le modèle suivant, on vérifie que le nombre l'argument est coherent avec l'application de la subroutine puis on effectue les instructions necessaire a l'application de la subroutine. Si la subroutine est sensé renvoyé quelquechose, on le renvois sinon on renvois nil, ceci car tel qu'elle est écrit apply doit renvoyer quelquechose.
+
+
+Les subroutines de notre interpreteur lisp sont:
+\begin{itemize}
+	\item[+] : (+ n m) renvois la somme des entiers n et m (était fourni dans le code initial)
+	\item[*] : ... (était fourni dans le code initial)
+	\item[-] : ...
+	\item[=] : ...
+	\item[cdr] : (cdr l) renvois la queu de la liste l
+	\item[car] : (car l) renvois la tête (premier élèment) de la liste l.
+	\item[cons] : (cons x l) créé la liste de tête x et de queue l.
+	\item[read] : renvois ce qu'on entre dans le terminal (on utilise souvant setq read afin de prendre en argument de la même manière qu'un scanf)
+	\item[print] : sert a afficher "Hello World!"
+	\item[new\_line] : sert a passer a la ligne
+	\item[numberp] : (numberp p) renvois t si p est un entier et nil sinon.
+	\item[null] : (null l) renvois t si l est l'élèment nil et nil sinon.	
+	\item[symbolp] : (symbolp q) renvois t si q est un symbole et nil sinon.
+	\item[stringp] : (stringp s) renvois t si s est une chaine de charactère et nil sinon.
+	\item[listp] : (listp p) renvois t si p est une liste et nil sinon.
+	\item[debug] : debug permet d'afficher la trace d'évaluation et d'application de la fonction, utilisé srtout pour trouvé les erreurs d'évaluations. Debug sera revu dans la partie trace du rapport.
+	\item[concat] : concatène l'ensemble des arguments qu'il reçois ( il lui en faut au moins un) : concat ne peut pas prendre une liste (ou nil) comme argument.
+	\item[eval] : renvois le resultat de eval (de eval.cc) sur l'argument de cette subroutine
+	\item[apply] : renvois le resultat de apply (de eval.cc) du premier argument sur la liste non evalué (avant apply) donné en second argument. (Il ne faut donc pas oublié d'utilisé quote).
+	\item[error] : arrete le programe et renvois une erreur sert quand on ecrit des programme en LISP et qu'on souhaite faire des asserts.
+	\item[end] : permet de mettre fin a notre interfae LISP, serait très interessant si ce n'était pas déjà le cas a chaque erreur.
+	
+	
+\end{itemize}
+
+\subsection{Cas particulier}
+	Pour la subroutine "read" on a reutilisé le parxer car la fonction read était déjà défini dans celui-ci.
+	
+	Pour la subroutine "apply" il nous a fallu reprendre un peu le parser, voir si-dessous.
+
+	Pour la subroutine "concat" il faut changer les entiers et symbols en chaine de caractères. Par simplification, on a copié une source internet (donné en reference) pour , pour changé nos entier.
+	
+	La subroutine "end" affiche "May LISP be with you!", cette reference nous parait mieux placé au debut du programme qu'as la fin.
+
+	La subroutine "error" appel une fonction Lisp\_error qui effectue l'ensemble des actions attribué à "error". Nous avons pris le parti d'agir ainsi, afin de remplacer tout les messages d'erreur de notre code par des message d'error du même type que ceux de la subroutine "error". On a aussi modifié le messages d'erreur pour que les fonctions qui renvois des erreur n'affiche rien d'autre.
+
+\section{Trace}
+	La subroutine debug permet de voir les traces des évaluation des instructions qui suivent. Debug renvois nil se qui permet d'éviter des erreur pathologiques.
+	
+	Debug prend en argument un entier ou nil. Dans l'absolu on voudrait que debug nil arrete l'affichage de la trace, que debug n renvois la trace où l'affichage de l'evaluation soit de profondeur n en parenthèse et que dans le cas où n ne serait pas scrictement positif, on afficherait l'integralité de la trace.
+	
+\section{Quote}
+	Avec un parser correct '(5 2) se transformerait en (quote (5 2)), ainsi (car '(5 2)) devrait renvoyer 5.	Grâce au commentaire de Solène Miraze sur le Piazza de la classe, une erreur qui empechait d'utiliser l'abreviation à été corrigé. 
+	
+	Quote est l'une des directive les plus importante de LISP car sans elle il est impossible d'indiquer a apply quand on a affaire a un element de type liste qu'on ne peut pas appliquer. On a donc eu de nombreux message d'erreur.
+	
+	Pour contourné se problème, on a dans une version antèrieur de notre code decrété que si le premier element d'un parentésage est un nombre alors on a affaire a une liste et on la renvois tel quel. Cette étape n'avais qu'un but temporaire (après tout (3 + 5) n'est pas une liste juste une erreur). Un language issus de LISP pourrais utilisé cette idée (avec quelque verification suplementaire) pour simplifié l'écriture parfois lourde du LISP. 
+	
+	En effet on chercher a éviter de devoir réécrire quote a chaque fois.
+	
+\section{Nouveau modèle d'Environement}
+	L'environement est défini comme un vecteur de couple (nom, valeur). A chaque fois qu'on rajoute un élément à l'environement (directive setq) on modifie la taille de l'environement afin de prendre en compte le nouvel arrivant. Bien qu'on place cet élément a la fin du vecteur du toute recherche commence par lui. En d'autre mot on remonte le vecteur jusqu'as trouvé se qu'on cherche. Par  On souhaiterait utilisé une liste chainéé plutôt qu'un vecteur. Car cette structure est plus adapté a ce modèle, on rajoute les nouveaux éléménts au debut de la liste (en temps constant) et on effectue nos recherche d'élément de manière recursif sur les listes.
+	
+	Pour effectuer ses changements on modifie env.cc (et env.hh); la classe Binding (les couples) n'as pas besoin de changement (et ses fonctions non plus) on va donc modifié la classe Environement et les fonctions de cette classe environement.
+	
+\section{Conclusions}
+	
+	Ce projet nous a permis de travailler sur ce qu'est un interprète. Dans le principe c'était très interressant mais probablement trop ambitieux et nous avons beaucoup perdu de temps a chercher se qui était attendu de nous et a revenir sur nos pas qu'as chercher comment amélioré. Nous n'avons donc pas pu nous attaquer au problème épineux d'écrire un interpreteur LISP en LISP que nous pourrions interpreter grâce a notre interpreteur en C++.
+
+\section{References}
+http://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+
+
+http://piazza.com/ens-rennes.fr
+
+
+\end{document}
+
+
+
+
+Idee depassement memoire?
