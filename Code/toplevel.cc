@@ -4,11 +4,15 @@
 #include "eval.hh"
 #include "toplevel.hh"
 
+extern int allow_print;
+
 void toplevel(){
+    allow_print = 1;
     cout << "Lisp? " << flush;
     yyparse();
     Object l = just_read;
-    cout << eval(l, env) << endl;
+    Object res = eval(l,env);
+    if(allow_print ==1){cout << res << endl;}
 }
 
 

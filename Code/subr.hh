@@ -27,3 +27,4 @@ Object subr_null(Object l);
 Object subr_concat(Object l);
 Object subr_eval(Object l);
 Object subr_apply(Object l);
+Object subr_error(Object l);

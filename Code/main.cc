@@ -9,6 +9,7 @@ extern "C" int yyparse();
 extern "C" FILE *yyin;
 Environment env;
 extern int trace;
+extern int allow_print;
 
 using namespace std;
 

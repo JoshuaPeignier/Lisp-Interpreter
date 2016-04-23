@@ -58,6 +58,14 @@ public:
   virtual ~Evaluation_Exception() throw () {}
 };
 
+int allow_print;
+
+Object lisperror(string s){
+	clog << "Lisp error : " << s << endl;
+	allow_print = 0;
+	return nil();
+}
+
 Object eval(Object l, Environment &env);
 Object apply(Object f, Object lvals, Environment &env);
 Object eval_list(Object largs, Environment &env);
@@ -90,12 +98,10 @@ Object eval(Object l, Environment &env) {
     if(Object_to_string(f) == "lambda") return l;
     if(Object_to_string(f) == "defun"){
 	if(size(l) > 4){
-		clog << "Error : too many fields in defun" << endl;
-		return nil();
+		return lisperror("too many fields in defun");
 	}
 	if(size(l) < 4){
-		clog << "Error : not enough fields in defun" << endl;
-		return nil();
+		return lisperror("not enough fields in defun");
 	}
 	Object arg = caddr(l);
 	Object res = cadddr(l);
@@ -110,12 +116,10 @@ Object eval(Object l, Environment &env) {
 		}
 		use_setqq();
 		if(size(l) > 3){
-		clog << "Error : too many values in setq\n" << endl;
-			return eval(nil(),env);
+			return lisperror("too many values in setq\n");
 		}
 		else if(size(l) < 3){
-			clog << "Error : not enough values in setq\n" << endl;
-			return eval(nil(),env);
+			lisperror("not enough values in setq\n");
 		}
 		Object var = cadr(l);
 		Object val = caddr(l);
@@ -158,14 +162,9 @@ Object apply(Object f, Object lvals, Environment &env) {
   	clog << "\tapply: " << f << " " << lvals << env << endl;
   }
 
-  if (null(f)) throw Evaluation_Exception(f, env, "Cannot apply nil");
-  if (numberp(f)) throw Evaluation_Exception(f, env, "Cannot apply a number");
-  if (stringp(f)) {
-	/*
-	if(Object_to_string(f) == "setq"){
-	}*/
-	throw Evaluation_Exception(f, env, "Cannot apply a string");
-  }
+  if (null(f)) return lisperror("Cannot apply nil"); //throw Evaluation_Exception(f, env, "Cannot apply nil");
+  if (numberp(f)) return lisperror("Cannot apply a number"); //throw Evaluation_Exception(f, env, "Cannot apply a number");
+  if (stringp(f)) return lisperror("Cannot apply a string"); //throw Evaluation_Exception(f, env, "Cannot apply a string");
   if (symbolp(f)) {
     if (Object_to_string(f) == "+") return do_plus(lvals);
     if (Object_to_string(f) == "*") return do_times(lvals);
@@ -179,12 +178,10 @@ Object apply(Object f, Object lvals, Environment &env) {
   assert(listp(f));
   if (Object_to_string(car(f)) == "lambda") {
     if(size(f) > 3){
-		clog << "Error : too many fields in lambda \n" << endl;
-		return eval(nil(),env);
+		return lisperror("too many fields in lambda \n");
     }
     else if(size(f) < 3){
-		clog << "Error : not enough fields in lambda\n" << endl;
-		return eval(nil(),env);
+		return lisperror("not enough fields in lambda\n");
     }
     Object lpars = cadr(f);
     Object body = caddr(f);
@@ -192,6 +189,7 @@ Object apply(Object f, Object lvals, Environment &env) {
     new_env.extend_env(lpars, lvals);
     return eval(body, new_env);
   }
-  throw Evaluation_Exception(f, env, "Cannot apply a list");
+  return lisperror("Cannot apply a list");
+  //throw Evaluation_Exception(f, env, "Cannot apply a list");
   assert(false);
 }

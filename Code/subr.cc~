@@ -13,7 +13,7 @@ int trace;
 int is_subr(Object f){
 	string s;
 	s = Object_to_string(f);
-	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print" || s == "debug" || s == "newline" || s == "listp" || s == "numberp" || s == "symbolp" || s == "stringp" || s == "null" || s == "concat" || s == "eval" || s == "apply");
+	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print" || s == "debug" || s == "newline" || s == "listp" || s == "numberp" || s == "symbolp" || s == "stringp" || s == "null" || s == "concat" || s == "eval" || s == "apply" ||  s == "error" || s == "end");
 }
 
 // Identifies the corresponding subroutine, and returns the list it is supposed to return
@@ -38,72 +38,59 @@ Object subr_effect(Object l){
 	else if (s == "concat"){res = subr_concat(l);}
 	else if (s == "eval"){res = subr_eval(l);}
 	else if (s == "apply"){res = subr_apply(l);}
+	else if (s == "error"){res = subr_error(l);}
 	else{
-		cout << "Error : invalid subroutine" << endl;
-		res = nil();
+		return lisperror("invalid subroutine");
 	}
 	return res;
 }
 
 Object subr_car(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in car" << endl;
-		return nil();
+		return lisperror("too many fields in car");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in car" << endl;
-		return nil();
+		return lisperror("not enough fields in car");
 	}
 	Object arg = cadr(l);
 	if(!listp(l)){
-		clog << "Error : argument in car is not a list" << endl;
-		return nil();
+		return lisperror("argument in car is not a list");
 	}
 	return car(arg);
 }
 
 Object subr_cdr(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in cdr" << endl;
-		return nil();
+		return lisperror("too many fields in cdr");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in cdr" << endl;
-		return nil();
+		return lisperror("not enough fields in cdr");
 	}
 	Object arg = cadr(l);
 	if(!listp(l)){
-		clog << "Error : argument in car is not a list" << endl;
-		return nil();
+		return lisperror("argument in car is not a list");
 	}
 	return cdr(arg);
 }
 
 Object subr_cons(Object l){
 	if(size(l) > 3){
-		clog << "Error : too many fields in cons" << endl;
-		return nil();
+		return lisperror("too many fields in cons");
 	}
 	if(size(l) < 3){
-		clog << "Error : not enough fields in cons" << endl;
-		return nil();
+		return lisperror("not enough fields in cons");
 	}
 	Object head = cadr(l);
 	Object tail = caddr(l);
 	if(!listp(tail) && tail != nil()){
-		clog << "Error : second argument in cons is not a list" << endl;
-		return nil();
-	}
-	if(!numberp(head)){
-		clog << "Error : first argument in cons is not a number" << endl;
+		return lisperror("second argument in cons is not a list");
 	}
 	return cons(head,tail);
 }
 
 Object subr_progn(Object l){
 	if(size(l) < 2){
-		clog << "Error : not enough fields in progn" << endl;
-		return nil();
+		return lisperror("not enough fields in progn");
 	}
 	Object arg = cdr(l);
 	while(size(arg) > 1){
@@ -116,12 +103,10 @@ Object subr_progn(Object l){
 
 Object subr_eq(Object l){
 	if(size(l) > 3){
-		clog << "Error : : too many fields in " << Object_to_string(car(l)) << endl;
-		return nil();
+		return lisperror("too many fields in " + Object_to_string(car(l)));
 	}
 	if(size(l) < 3){
-		clog << "Error : not enough fields in " << Object_to_string(car(l)) << endl;
-		return nil();
+		return lisperror("not enough fields in " + Object_to_string(car(l)));
 	}
 	Object v1 = cadr(l);
 	Object v2 = caddr(l);
@@ -157,8 +142,7 @@ Object subr_eq(Object l){
 
 Object subr_read(Object l){
 	if(size(l) > 1){
-		clog << "Error : read takes no argument but it is given one" << endl;
-		return nil();
+		return lisperror("read takes no argument but it is given one");
 	}
 	yyparse();
 	Object k = just_read;
@@ -167,12 +151,10 @@ Object subr_read(Object l){
 
 Object subr_print(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in print" << endl;
-		return nil();
+		return lisperror("too many fields in print");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in print" << endl;
-		return nil();
+		return lisperror("not enough fields in print");
 	}
 	clog << cadr(l) << endl;
 	return cadr(l);
@@ -180,10 +162,10 @@ Object subr_print(Object l){
 
 Object subr_debug(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in debug" << endl;
+		return lisperror("too many fields in debug");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in debug" << endl;
+		return lisperror("not enough fields in debug");
 	}
 	if(cadr(l) == nil()){
 		trace =-1;
@@ -194,14 +176,14 @@ Object subr_debug(Object l){
 		}
 	}
 	else if(!numberp(cadr(l))){
-		clog << "Error : argument in debug is not a number, nor is it nil" << endl;
+		return lisperror("argument in debug is not a number, nor is it nil");
 	}
 	return nil();
 }
 
 Object subr_newline(Object l){
 	if(size(l) > 1){
-		clog << "Error : newline takes no argument" << endl;
+		return lisperror("newline takes no argument");
 	}
 	clog << "" << endl;
 	return nil();
@@ -209,12 +191,10 @@ Object subr_newline(Object l){
 
 Object subr_listp(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in listp" << endl;
-		return nil();
+		return lisperror("too many fields in listp");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in listp" << endl;
-		return nil();
+		return lisperror("not enough fields in listp");
 	}
 	if(listp(cadr(l))){return t();}
 	else{return nil();}
@@ -222,12 +202,10 @@ Object subr_listp(Object l){
 
 Object subr_numberp(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in numberp" << endl;
-		return nil();
+		return lisperror("too many fields in numberp");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in numberp" << endl;
-		return nil();
+		return lisperror("not enough fields in numberp");
 	}	
 	if(numberp(cadr(l))){return t();}
 	else{return nil();}
@@ -235,12 +213,10 @@ Object subr_numberp(Object l){
 
 Object subr_symbolp(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in symbolp" << endl;
-		return nil();
+		return lisperror("too many fields in symbolp");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in symbolp" << endl;
-		return nil();
+		return lisperror("not enough fields in symbolp");
 	}
 	if(symbolp(cadr(l))){return t();}
 	else{return nil();}
@@ -248,12 +224,10 @@ Object subr_symbolp(Object l){
 
 Object subr_stringp(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in stringp" << endl;
-		return nil();
+		return lisperror("too many fields in stringp");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in stringp" << endl;
-		return nil();
+		return lisperror("not enough fields in stringp");
 	}
 	if(stringp(cadr(l))){return t();}
 	else{return nil();}
@@ -261,12 +235,10 @@ Object subr_stringp(Object l){
 
 Object subr_null(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in null" << endl;
-		return nil();
+		return lisperror("too many fields in null");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in null" << endl;
-		return nil();
+		return lisperror("not enough fields in null");
 	}
 	if(null(cadr(l))){return t();}
 	else{return nil();}
@@ -274,8 +246,7 @@ Object subr_null(Object l){
 
 Object subr_concat(Object l){
 	if(size(l) < 2){
-		clog << "Error : not enough fields in concat" << endl;
-		return nil();
+		return lisperror("not enough fields in concat");
 	}
 	Object arg = cdr(l);
 	string res = "";
@@ -291,7 +262,7 @@ Object subr_concat(Object l){
 			res = res + buf;
 		}
 		else{
-			clog << "Error : argument in concat is not a symbol nor a string nor a number" << endl;
+			return lisperror("argument in concat is not a symbol nor a string nor a number");
 		}
 		arg = cdr(arg);
 	}
@@ -300,25 +271,33 @@ Object subr_concat(Object l){
 
 Object subr_eval(Object l){
 	if(size(l) > 2){
-		clog << "Error : too many fields in eval" << endl;
-		return nil();
+		return lisperror("too many fields in eval");
 	}
 	if(size(l) < 2){
-		clog << "Error : not enough fields in eval" << endl;
-		return nil();
+		return lisperror("not enough fields in eval");
 	}
 	return eval(cadr(l),env);
 }
 
 Object subr_apply(Object l){
 	if(size(l) > 3){
-		clog << "Error : too many fields in apply" << endl;
-		return nil();
+		return lisperror("too many fields in apply");
 	}
 	if(size(l) < 3){
-		clog << "Error : not enough fields in apply" << endl;
-		return nil();
+		return lisperror("not enough fields in apply");
 	}
-	return apply(cadr(l),caddr(l));
+	return apply(cadr(l),caddr(l),env);
 }
 
+Object subr_error(Object l){
+	if(size(l) > 2){
+		return lisperror("too many fields in error");
+	}
+	if(size(l) < 2){
+		return lisperror("not enough fields in error");
+	}
+	if(!stringp(cadr(l))){
+		return lisperror("argument in error is not a string");
+	}
+	return lisperror(Object_to_string(cadr(l)));
+}
