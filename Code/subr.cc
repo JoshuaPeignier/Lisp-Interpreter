@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <string>
 #include <cassert>
+#include <cstdio>
+#include <cstdlib>
 #include "subr.hh"
 
 extern Object just_read;
@@ -11,7 +13,7 @@ int trace;
 int is_subr(Object f){
 	string s;
 	s = Object_to_string(f);
-	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print" || s == "debug" || s == "newline" || s == "listp" || s == "numberp" || s == "symbolp" || s == "stringp" || s == "null");
+	return (s == "car" || s == "cdr" || s == "cons" || s == "progn" || s == "eq" || s == "equal" || s == "=" || s == "read" || s == "print" || s == "debug" || s == "newline" || s == "listp" || s == "numberp" || s == "symbolp" || s == "stringp" || s == "null" || s == "concat" || s == "eval" || s == "apply");
 }
 
 // Identifies the corresponding subroutine, and returns the list it is supposed to return
@@ -33,6 +35,8 @@ Object subr_effect(Object l){
 	else if (s == "symbolp"){res = subr_symbolp(l);}
 	else if (s == "stringp"){res = subr_stringp(l);}
 	else if (s == "null"){res = subr_null(l);}
+	else if (s == "concat"){res = subr_concat(l);}
+	else if (s == "eval"){res = subr_eval(l);}
 	else{
 		cout << "Error : invalid subroutine" << endl;
 		res = nil();
@@ -266,3 +270,42 @@ Object subr_null(Object l){
 	if(null(cadr(l))){return t();}
 	else{return nil();}
 }
+
+Object subr_concat(Object l){
+	if(size(l) < 2){
+		clog << "Error : not enough fields in concat" << endl;
+		return nil();
+	}
+	Object arg = cdr(l);
+	string res = "";
+	while(!null(arg)){
+		if(stringp(car(arg)) || symbolp(car(arg))){
+			res = res+Object_to_string(car(arg));
+		}
+		else if(numberp(car(arg))){
+			int resInt = Object_to_number(car(arg));
+			char buf[64];
+			sprintf(buf, "%d", resInt);
+			string str(buf);
+			res = res + buf;
+		}
+		else{
+			clog << "Error : argument in concat is not a symbol nor a string nor a number" << endl;
+		}
+		arg = cdr(arg);
+	}
+	return string_to_Object(res);
+}
+
+Object subr_eval(Object l){
+	if(size(l) > 2){
+		clog << "Error : too many fields in eval" << endl;
+		return nil();
+	}
+	if(size(l) < 2){
+		clog << "Error : not enough fields in eval" << endl;
+		return nil();
+	}
+	return eval(cadr(l),env);
+}
+

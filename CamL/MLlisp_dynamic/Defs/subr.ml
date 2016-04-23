@@ -25,8 +25,8 @@ let init_env_subr () =
     register_subr lisp_stringp do_stringp; (* Done *)
     register_subr lisp_listp do_listp; (* Done *)
     register_subr lisp_debug do_debug;
-    register_subr lisp_concat do_concat;
-    register_subr lisp_eval do_eval;
+    register_subr lisp_concat do_concat; (* Done *)
+    register_subr lisp_eval do_eval; (* Done *)
     register_subr lisp_apply do_apply;
     register_subr lisp_error do_error;
     register_subr lisp_end do_end;

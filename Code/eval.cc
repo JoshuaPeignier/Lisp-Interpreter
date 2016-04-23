@@ -88,6 +88,22 @@ Object eval(Object l, Environment &env) {
       return eval(then_part, env);
     }
     if(Object_to_string(f) == "lambda") return l;
+    if(Object_to_string(f) == "defun"){
+	if(size(l) > 4){
+		clog << "Error : too many fields in defun" << endl;
+		return nil();
+	}
+	if(size(l) < 4){
+		clog << "Error : not enough fields in defun" << endl;
+		return nil();
+	}
+	Object arg = caddr(l);
+	Object res = cadddr(l);
+	Object name = cadr(l);
+	Object lambda = cons(symbol_to_Object("lambda"),cons(arg,cons(res,nil())));
+	//Object value = cons(lambda,nil());
+	return eval(cons(symbol_to_Object("setq"),cons(name,cons(lambda,nil()))),env);
+    }
     if(Object_to_string(f) == "setq"){
 		if (get_setqq() > 0){
 			clog << "Warning : setq used several times\n" << endl;

@@ -4,6 +4,8 @@
 #include "object.hh"
 #include "eval.hh"
 
+extern Environment env;
+
 int is_subr(Object f);
 
 Object subr_effect(Object l);
@@ -22,3 +24,5 @@ Object subr_numberp(Object l);
 Object subr_symbolp(Object l);
 Object subr_stringp(Object l);
 Object subr_null(Object l);
+Object subr_concat(Object l);
+Object subr_eval(Object l);
