@@ -5,6 +5,7 @@
 typedef Cell* Object;
 
 Object nil();
+Object t();
 bool null(Object l);
 
 Object cons(Object a, Object l);

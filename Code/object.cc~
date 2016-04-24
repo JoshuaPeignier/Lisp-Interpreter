@@ -14,10 +14,6 @@ Object t(){
   return string_to_Object("t");
 }
 
-Object error(){
-  return
-}
-
 bool null(Object l) {
   return l == nil();
 }
@@ -78,4 +74,10 @@ string Object_to_string(Object l) {
   if (l -> is_string()) return l -> to_string();
   if (l -> is_symbol()) return l -> to_symbol();
   assert(false);
+}
+
+Object lisperror(string s){
+	clog << "Lisp error : " << s << endl;
+	allow_print = 0;
+	return nil();
 }

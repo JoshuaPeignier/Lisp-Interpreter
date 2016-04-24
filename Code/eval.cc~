@@ -71,7 +71,6 @@ Object apply(Object f, Object lvals, Environment &env);
 Object eval_list(Object largs, Environment &env);
 
 Object eval(Object l, Environment &env) {
-  allow_print = 1;
   if(trace > 0){
   	clog << "\teval: " << l << env << endl;
   }

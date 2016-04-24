@@ -60,12 +60,6 @@ public:
 
 int allow_print;
 
-Object lisperror(string s){
-	clog << "Lisp error : " << s << endl;
-	allow_print = 0;
-	return nil();
-}
-
 Object eval(Object l, Environment &env);
 Object apply(Object f, Object lvals, Environment &env);
 Object eval_list(Object largs, Environment &env);

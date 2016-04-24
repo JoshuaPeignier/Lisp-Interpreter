@@ -21,3 +21,4 @@ Object symbol_to_Object(string s);
 
 int Object_to_number(Object l);
 string Object_to_string(Object l);
+Object lisperror(string s);

@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[a4paper,11pt]{article}
 \usepackage[french]{babel} 
 \usepackage{microtype}
 
@@ -8,11 +8,20 @@
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{amsthm}
+\usepackage{fullpage}%
+\usepackage[T1]{fontenc}%
+
+\usepackage{graphicx}%
+\usepackage{url}%
+\usepackage{abstract}%
+
+\usepackage{mathpazo}%
+\parskip=0.5\baselineskip
 
 
 \title{Interpréteur LISP}
 \author{J. Peignier \& E. Varloot}
-\date{Avril/Mai 2016}
+\date{24 Avril 2016}
 
 
 \begin{document}
@@ -22,17 +31,34 @@
 \tableofcontents
 
 \pagebreak
-	
+
+
+\begin{abstract}
+	Dans cet article, nous présentons un interprète Lisp en C++, écrit à partir de l'amélioration d'un code de base qui gère déjà le coeur de l'interprète (notamment les fonctions \texttt{eval} et \texttt{apply}) ; l'objectif est d'y intégrer toutes les subroutines habituelles du langage Lisp, ainsi qu'un dispositif de trace pour visualiser l'évaluation.
+  %Ici votre résumé. Pas plus de 10 lignes en double colonnes, 5 en
+  %simple colonne. Tous les mots-clés doivent y être cités. 
+  \begin{description}
+  \item[Mots-clés:] Interprète Lisp en C++ ; subroutine ; gestion d'erreurs
+%\item[Classification ACM:] Voir les codes à l'adresse
+  %\begin{center}
+   % \url{http://www.acm.org/about/class/class/2012}.
+  %\end{center}
+
+  \end{description}
+\end{abstract}
+
+
 \section{Introduction}
-
-	L'objectif de ce projet est de créer un interpréteur pour le language LISP en C++. Entre autre on voudrait qu'il puisse interpérter un intepréteur LISP qui est lui même écrit en LISP.
-	Pour ce faire on avait à disposition un exemple d'iterpréteur écrit en Caml et la base de notre code contenant déjà un évaluateur et un environement.
-
-\section{Toplevel}
-
-	Le premier élément que nous devions implementer était le toplevel. Le toplevel est divisé en deux parties.
 	
-	 La première est utilisé constament. Lorsqu'on l'appel, on affiche "Lisp?" pour signalé que l'utilisateur peut entrer son instruction. Le toplevel recupère l'instruction entrée dans le terminal. Il appelle le lexer pour vérifier la syntaxe puis le parker se sert de se que lui renvoi le lexer pour reconsruire l'élément Lisp. Puis on évalue selon l'enviromenent (global et courant) grâce au partie évaluation et environement du code.
+	Le thème de ce projet consiste en la réalisation d'un interprète Lisp en C++, à partir d'un code de base fourni en C++ (capable d'évaluer une expression donnée à l'interprète, ainsi que de gérer l'environnement), ainsi qu'à l'aide d'un code complet en CamL d'un interprète Lisp à liaison dynamique, dont nous nous sommes inspirés pour le choix de subroutines à implémenter.
+	Dans un souci de simplicité, nous nous intéressons grandement à l'implémentation des subroutines et au rattrapage des erreurs d'évaluation.
+	Nous avons donc dû chercher toutes les sources d'erreur possible pour pouvoir les rattraper, et nous assurer que les erreurs d'évaluation n'auraient pas d'impact sur l'environnement courant.
+	Nous nous sommes donc d'abord concentrés sur l'implémentation des subroutines en nous inspirant du code de l'interprète écrit en CamL, puis avons cherché pour chacune d'entre elles les erreurs possibles, ainsi que celles qui pourraient arriver dans la fonction d'évaluation du code de base.
+
+\section{Implémentation}
+
+	\subsection{Toplevel}
+	Le code fourni en C++ présentait déjà une implémentation de \textit{toplevel}. Celui-ci se constitue d'une boucle principale qui attend une entrée de la part d'un utilisateur. Celle-ci est transmise à un \textit{lexer}, qui vérifie que la syntaxe de l'expression présentée est correcte, puis à un \textit{parser}, qui construit l'objet Lisp correspondant à l'expression entrée. Puis l'évaluation est lancée dans l'environnement global, et le résultat de celle-ci est affichée. Nous avons amélioré le programme pour faire en sorte que le résultat ne s'affiche pas lorsqu'une erreur a lieu à l'évaluation, car le comportement de l'interprète à ce moment-là est plus ou moins indéterminé.
 	 
 	 La seconde partie conserne la directive "setq" qui permet d'ajouté un élèment a l'environement global. Pour se faire nous avons assimilé "setq" a un element qu'on evalue. Lorsqu'on le trouve on evalue le secound argument de setq puis on la renvoie. De plus on étant l'environement general tel que le premier argument represente maintenant le resultat de l'evaluation du second.
 	Nous avons rajouté un message dans le cas ou setq serait appelé plusieur fois lors d'une évaluation, en effet bien que cela ne pose pas de problème pour notre code, des cas patologique peuvent apparaitre en parliculier lorsque setq s'appelle lui-même.
@@ -103,8 +129,14 @@ Les subroutines de notre interpreteur lisp sont:
 	
 \section{Conclusions}
 	
-	Ce projet nous a permis de travailler sur ce qu'est un interprète. Dans le principe c'était très interressant mais probablement trop ambitieux et nous avons beaucoup perdu de temps a chercher se qui était attendu de nous et a revenir sur nos pas qu'as chercher comment amélioré. Nous n'avons donc pas pu nous attaquer au problème épineux d'écrire un interpreteur LISP en LISP que nous pourrions interpreter grâce a notre interpreteur en C++.
+	
+	%Ce projet nous a permis de travailler sur ce qu'est un interprète. Dans %le principe c'était très interressant mais probablement trop ambitieux %et nous avons beaucoup perdu de temps a chercher se qui était attendu de %nous et a revenir sur nos pas qu'as chercher comment amélioré. Nous %n'avons donc pas pu nous attaquer au problème épineux d'écrire un %interpreteur LISP en LISP que nous pourrions interpreter grâce a notre %interpreteur en C++.
+	
+	Nous avons pu, à travers ce projet, appréhender le concept d'interprétation, et avoir un aperçu du fonctionnement d'un interpréteur. Le choix d'un interprète Lisp était judicieux pour ce projet, puisqu'il s'agit d'un langage relativement ancien, avec somme toute peu de contenu.
 
+\section{Remerciements}
+	Nous souhaiterions principalement remercier Luc Bougé, organisateur du projet et fournisseur de l'interprète écrit en CamL ainsi que du code de base, pour nous avoir proposé ce projet, nous avoir épargné la lourde tâche de gérer le \textit{lexer} et le \textit{parser}, ainsi que pour nous avoir suivi et aidé tout au long du projet.
+	
 \section{References}
 http://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
 
@@ -114,7 +146,3 @@ http://piazza.com/ens-rennes.fr
 
 \end{document}
 
-
-
-
-Idee depassement memoire?

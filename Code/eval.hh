@@ -17,8 +17,6 @@ Object caddr(Object l);
 Object cdddr(Object l);
 Object cadddr(Object l);
 
-Object lisperror(string s);
-
 Object eval(Object l, Environment &env);
 Object apply(Object f, Object lvals, Environment &env);
 Object eval_list(Object largs, Environment &env);

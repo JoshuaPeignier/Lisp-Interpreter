@@ -54,7 +54,9 @@ void Environment::extend_env(Object lpars, Object lvals) {
 }
 Object Environment::find_value(string name) {
   for (int i = contents.size() - 1;; i--) {
-    if (i < 0) throw No_Binding_Exception(name);
+    if (i < 0){ //throw No_Binding_Exception(name);
+	return lisperror(name + " value not found");
+    }
     if (contents.at(i).get_name() == name) return contents.at(i).get_value();
   }
 }

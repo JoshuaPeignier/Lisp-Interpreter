@@ -4,6 +4,7 @@
 #include "object.hh"
 
 using namespace std;
+extern int allow_print;
 
 Object nil() {
   return Cell::nil();
@@ -74,4 +75,10 @@ string Object_to_string(Object l) {
   if (l -> is_string()) return l -> to_string();
   if (l -> is_symbol()) return l -> to_symbol();
   assert(false);
+}
+
+Object lisperror(string s){
+	clog << "Lisp error : " << s << endl;
+	allow_print = 0;
+	return nil();
 }
